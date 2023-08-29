@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Welcome to the Dashboard</h1>
+    <h3>Hello, {{.User.Username}}!</h3>
+    <h3>Your To Do List</h3>
+
+    <table border="1">
+        <tr>
+            <th>Task ID</th>
+            <th>Task Name</th>
+            <th>Task Description</th>
+            <th>Status</th>
+        </tr>
+        {{ range .Task_items }}
+        <tr>
+            <td>{{ .Task_id }}</td>
+            <td>{{ .Task_name }}</td>
+            <td>{{ .Task_description }}</td>
+            <td><select class="dropdown" id = "{{ .Task_id }}" onchange="sendDataToServer(this)">
+                {{ range .StatusOptions }}
+                <option value = "{{ . }}">{{ . }}</option>
+                {{ end }}
+            </select></td>
+        </tr>
+        <script>
+            // Set default value using JavaScript
+            document.getElementById("{{ .Task_id }}").value = "{{ .Status }}";
+        </script>
+        {{ end }}
+
+    </table>
+    <br>
+    <h2>Add Items</h2>
+    <form action="/addTask" id="itemForm" class="hidden" method="post">
+        <label for="TaskName">Task Name:</label>
+        <input type="text" id="TaskName" list="options" name="TaskName" placeholder="Select a task item" oninput="handleChange()">
+        <datalist id="options">
+            {{range .Existing_Task_List}}
+            <option value="{{.TaskName}}">
+                {{end}}
+        </datalist>
+        
+        <label for="TaskDescription">Task Description:</label>
+        <textarea id="TaskDescription" name="TaskDescription"></textarea><br><br>
+        <input type="submit" value="Save Task">
+        <script>
+            function handleChange() {
+                var inputElement = document.getElementById("TaskName");
+                var inputValue = inputElement.value;
+                var taskList = {{ .Existing_Task_List }}
+                for(i in taskList){
+                    if(taskList[i]["TaskName"] == inputValue ){
+                        document.getElementById("TaskDescription").value = taskList[i]["TaskDescription"]      
+                    }
+                }
+            }         
+        </script>
+    <br>
+    <a href="/logout">Logout</a>
+    <script>       
+     function sendDataToServer(selectElement) {
+        var row = selectElement.closest("tr");
+        var cells = row.getElementsByTagName("td");
+
+        var selectedOptionValue = selectElement.value;
+        var tdValues = [];
+
+        for (var i = 0; i < cells.length - 1; i++) {
+            tdValues.push(cells[i].textContent);
+        }
+
+            // Send the data to the server using an HTTP request (e.g., AJAX)
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/SendData", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        var dataToSend = {
+            selectedOption: selectedOptionValue,
+            tdValues: tdValues
+        };
+
+        xhr.send(JSON.stringify(dataToSend));
+}
+
+</script>
+</body>
+</html>
