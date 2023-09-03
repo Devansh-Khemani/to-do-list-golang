@@ -2,6 +2,8 @@
 <html>
 <head>
     <title>Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">  
 </head>
 <body>
     <h1>Welcome to the Dashboard</h1>
@@ -25,6 +27,11 @@
                 <option value = "{{ . }}">{{ . }}</option>
                 {{ end }}
             </select></td>
+            <td>
+                <button style="font-size:22px" onclick="delTask(this)">Delete <i class="material-icons" >delete</i></button>
+                <!-- <input type="submit" value="Delete Task"> -->
+
+            </td>
         </tr>
         <script>
             // Set default value using JavaScript
@@ -87,5 +94,31 @@
 }
 
 </script>
+
+<script>       
+    function delTask(selectElement) {
+       var row = selectElement.closest("tr");
+       var cells = row.getElementsByTagName("td");
+       var tdValues = [];
+
+       for (var i = 0; i < cells.length - 1; i++) {
+           tdValues.push(cells[i].textContent);
+       }
+
+           // Send the data to the server using an HTTP request (e.g., AJAX)
+       var xhr = new XMLHttpRequest();
+       xhr.open("POST", "/DelTask", true);
+       xhr.setRequestHeader("Content-Type", "application/json");
+
+       var dataToSend = {
+           tdValues: tdValues
+       };
+
+       xhr.send(JSON.stringify(dataToSend));
+}
+
+</script>
+
+
 </body>
 </html>

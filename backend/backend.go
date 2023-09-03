@@ -236,3 +236,27 @@ func Senddata(ReceivedData string, Userid int, TaskId string) {
 	}
 
 }
+
+func Deldata(Userid int, TaskId string) {
+	dsn := "root:180404@tcp(localhost:3306)/to_do_list"
+
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	tx, err := db.Begin()
+
+	query := fmt.Sprintf("DELETE FROM TASKS_STATUS WHERE USER_ID = %d AND TASK_ID = %s", Userid, TaskId)
+
+	_, err = tx.Exec(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+}

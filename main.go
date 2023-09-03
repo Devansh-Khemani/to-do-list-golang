@@ -117,6 +117,36 @@ func main() {
 		}
 	})
 
+	http.HandleFunc("/DelTask", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			body, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				http.Error(w, "Error reading request body", http.StatusBadRequest)
+				return
+			}
+
+			var receivedData DataFromClient
+			err = json.Unmarshal(body, &receivedData)
+			if err != nil {
+				http.Error(w, "Error parsing JSON data", http.StatusBadRequest)
+				return
+			}
+
+			fmt.Println("Received TD values:", receivedData.TDValues)
+			err = json.Unmarshal(body, &receivedData)
+			backend.Deldata(loggedInUser.Userid, receivedData.TDValues[0])
+
+			// Process and use the received data as needed
+
+			// Send a response back to the client if needed
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("Data deleted successfully"))
+		} else {
+			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		}
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	})
+
 	http.ListenAndServe(":8080", nil)
 
 }
